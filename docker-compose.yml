@@ -1,5 +1,6 @@
 version: "3.7"
 services:
+    # This service is for starting single node elastic search server
     elasticsearch:
       image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
       ports:
@@ -8,12 +9,15 @@ services:
       environment:
         - discovery.type=single-node
 
+    # This service is for visualizing the data via kibana UI
     kibana:
       image: docker.elastic.co/kibana/kibana:7.8.0
       ports:
        - "5601:5601"
       links:
        - elasticsearch
+
+    # This service is for logstash server for inputting data into
     logstash:
       build: logstash
       command: logstash -f logstash.conf
@@ -22,6 +26,8 @@ services:
        - "5044:5044"
       links:
        - elasticsearch
+
+    # This is simple spring-boot service to generate logs
     logger_service:
       build:
         context: ./spring-boot-app

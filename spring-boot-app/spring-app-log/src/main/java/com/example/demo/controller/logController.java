@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "logger")
 public class logController {
+
+    // Creating a logger object for this class and use it to generate logs
     private static final Logger logger = LoggerFactory.getLogger(logController.class);
+
     @GetMapping("/log")
-    public ResponseEntity<String> publishBmwSevenSeriesCars() {
-        logger.info("this is logger in applicaTion");
-        return ResponseEntity.ok("logging done");
+    public ResponseEntity<String> generateLogs() {
+        logger.info("This is how we generate logs in spring boot application in style.");
+        return ResponseEntity.ok("Awesome!!! we have generated logs.");
     }
 }

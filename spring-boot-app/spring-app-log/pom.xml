@@ -12,7 +12,7 @@
 	<artifactId>demo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>demo</name>
-	<description>Demo project for Spring Boot</description>
+	<description>This is simple spring boot project to create logs</description>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -31,6 +31,7 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- This dependency is for encoding the logs generated and sending it to logstash via TCP network -->
 		<dependency>
 			<groupId>net.logstash.logback</groupId>
 			<artifactId>logstash-logback-encoder</artifactId>
