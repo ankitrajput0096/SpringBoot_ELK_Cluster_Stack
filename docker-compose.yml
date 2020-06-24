@@ -1,37 +1,96 @@
 version: "3.7"
 services:
-    # This service is for starting single node elastic search server
-    elasticsearch:
+    # This service is for starting 2 node elasticsearch cluster
+    elasticsearch01:
       image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+      container_name: elasticsearch01
+      environment:
+        - node.name=elasticsearch01
+        - cluster.name=es-docker-cluster
+        - discovery.seed_hosts=elasticsearch02
+        - cluster.initial_master_nodes=elasticsearch01,elasticsearch02
+        - bootstrap.memory_lock=true
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      ulimits:
+        memlock:
+          soft: -1
+          hard: -1
+      volumes:
+        - data01:/usr/share/elasticsearch/data
       ports:
        - "9200:9200"
        - "9300:9300"
+      networks:
+        - elastic
+
+    elasticsearch02:
+      image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+      container_name: elasticsearch02
       environment:
-        - discovery.type=single-node
+        - node.name=elasticsearch02
+        - cluster.name=es-docker-cluster
+        - discovery.seed_hosts=elasticsearch01
+        - cluster.initial_master_nodes=elasticsearch01,elasticsearch02
+        - bootstrap.memory_lock=true
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      ulimits:
+        memlock:
+          soft: -1
+          hard: -1
+      volumes:
+        - data02:/usr/share/elasticsearch/data
+      ports:
+       - "9201:9200"
+       - "9301:9300"
+      networks:
+        - elastic
 
     # This service is for visualizing the data via kibana UI
     kibana:
       image: docker.elastic.co/kibana/kibana:7.8.0
+      container_name: kibana
+      environment:
+        ELASTICSEARCH_HOSTS: '["http://elasticsearch01:9200","http://elasticsearch02:9200"]'
       ports:
        - "5601:5601"
-      links:
-       - elasticsearch
+      networks:
+        - elastic
+      depends_on:
+        - elasticsearch01
+        - elasticsearch02
 
-    # This service is for logstash server for inputting data into
+    # # This service is for logstash server for inputting data into
     logstash:
       build: logstash
       command: logstash -f logstash.conf
+      container_name: logstash
+      environment:
+        XPACK_MONITORING_ENABLED: "true"
+        XPACK_MONITORING_ELASTICSEARCH_HOSTS: '["http://elasticsearch01:9200","http://elasticsearch02:9200"]'
       ports:
        - "5043:5043"
        - "5044:5044"
-      links:
-       - elasticsearch
+      networks:
+        - elastic
+      depends_on:
+        - elasticsearch01
+        - elasticsearch02
 
-    # This is simple spring-boot service to generate logs
+    # # This is simple spring-boot service to generate logs
     logger_service:
       build:
         context: ./spring-boot-app
       ports:
         - "8080:8080"
-      links:
-       - logstash
+      networks:
+        - elastic
+
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge
