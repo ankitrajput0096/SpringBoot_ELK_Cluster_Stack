@@ -38,10 +38,8 @@ docker-compose up
 
 ## All the exposed API's by spring-boot log-producer servers are as follows:
 
-1. Curl command for spring-boot log-producer one server
-curl --location --request GET 'localhost:8080/loggerOne/logOne'
-2. Curl command for spring-boot log-producer two server
-curl --location --request GET 'localhost:8081/loggerTwo/logTwo'
+1. Curl command for spring-boot log-producer one server :- curl --location --request GET 'localhost:8080/loggerOne/logOne'
+2. Curl command for spring-boot log-producer two server :- curl --location --request GET 'localhost:8081/loggerTwo/logTwo'
 3. Try hitting these api's on terminal and Enjoy producing logs in the application !!
 
 #### NOTE : To see elasticsearch cluster in action, observe terminal logs appropriately.
