@@ -6,7 +6,7 @@ RUN apt-get update
 RUN apt-get install -y openjdk-8-jdk maven 
 
 # coping the required application files
-COPY . /spring-boot-app/
+COPY . /spring-boot-app
 WORKDIR /spring-boot-app/spring-app-log
 
 # building the spring boot app

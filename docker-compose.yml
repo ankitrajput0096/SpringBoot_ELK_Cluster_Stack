@@ -1,14 +1,14 @@
 version: "3.7"
 services:
     # This service is for starting 2 node elasticsearch cluster
-    elasticsearch01:
+    elasticsearchone:
       image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
-      container_name: elasticsearch01
+      container_name: elasticsearchone
       environment:
-        - node.name=elasticsearch01
+        - node.name=elasticsearchone
         - cluster.name=es-docker-cluster
-        - discovery.seed_hosts=elasticsearch02
-        - cluster.initial_master_nodes=elasticsearch01,elasticsearch02
+        - discovery.seed_hosts=elasticsearchtwo
+        - cluster.initial_master_nodes=elasticsearchone,elasticsearchtwo
         - bootstrap.memory_lock=true
         - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       ulimits:
@@ -16,21 +16,21 @@ services:
           soft: -1
           hard: -1
       volumes:
-        - data01:/usr/share/elasticsearch/data
+        - data01:/usr/share/elasticsearchone/data
       ports:
        - "9200:9200"
        - "9300:9300"
       networks:
         - elastic
 
-    elasticsearch02:
+    elasticsearchtwo:
       image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
-      container_name: elasticsearch02
+      container_name: elasticsearchtwo
       environment:
-        - node.name=elasticsearch02
+        - node.name=elasticsearchtwo
         - cluster.name=es-docker-cluster
-        - discovery.seed_hosts=elasticsearch01
-        - cluster.initial_master_nodes=elasticsearch01,elasticsearch02
+        - discovery.seed_hosts=elasticsearchone
+        - cluster.initial_master_nodes=elasticsearchone,elasticsearchtwo
         - bootstrap.memory_lock=true
         - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       ulimits:
@@ -38,7 +38,7 @@ services:
           soft: -1
           hard: -1
       volumes:
-        - data02:/usr/share/elasticsearch/data
+        - data02:/usr/share/elasticsearchtwo/data
       ports:
        - "9201:9200"
        - "9301:9300"
@@ -50,38 +50,64 @@ services:
       image: docker.elastic.co/kibana/kibana:7.8.0
       container_name: kibana
       environment:
-        ELASTICSEARCH_HOSTS: '["http://elasticsearch01:9200","http://elasticsearch02:9200"]'
+        ELASTICSEARCH_HOSTS: '["http://elasticsearchone:9200","http://elasticsearchtwo:9200"]'
       ports:
        - "5601:5601"
       networks:
         - elastic
       depends_on:
-        - elasticsearch01
-        - elasticsearch02
+        - elasticsearchone
+        - elasticsearchtwo
 
-    # # This service is for logstash server for inputting data into
-    logstash:
-      build: logstash
+    # This service is for logstash server for inputting data into elastic search cluster for service `logger_service_one`
+    logstash_one:
+      build: logstash_spring_boot_app
       command: logstash -f logstash.conf
-      container_name: logstash
+      container_name: logstash_one
       environment:
         XPACK_MONITORING_ENABLED: "true"
-        XPACK_MONITORING_ELASTICSEARCH_HOSTS: '["http://elasticsearch01:9200","http://elasticsearch02:9200"]'
+        XPACK_MONITORING_ELASTICSEARCH_HOSTS: '["http://elasticsearchone:9200","http://elasticsearchtwo:9200"]'
       ports:
        - "5043:5043"
        - "5044:5044"
       networks:
         - elastic
       depends_on:
-        - elasticsearch01
-        - elasticsearch02
+        - elasticsearchone
+        - elasticsearchtwo
 
-    # # This is simple spring-boot service to generate logs
-    logger_service:
+    # This service is for logstash server for inputting data into elastic search cluster for service `logger_service_two`
+    logstash_two:
+      build: logstash_spring_boot_app_two
+      command: logstash -f logstash.conf
+      container_name: logstash_two
+      environment:
+        XPACK_MONITORING_ENABLED: "true"
+        XPACK_MONITORING_ELASTICSEARCH_HOSTS: '["http://elasticsearchone:9200","http://elasticsearchtwo:9200"]'
+      ports:
+       - "6043:6043"
+       - "6044:6044"
+      networks:
+        - elastic
+      depends_on:
+        - elasticsearchone
+        - elasticsearchtwo
+
+    # This is simple spring-boot service to generate logs - service one
+    logger_service_one:
       build:
         context: ./spring-boot-app
       ports:
         - "8080:8080"
+      networks:
+        - elastic
+
+    # This is simple spring-boot service to generate logs - service two
+    logger_service_two:
+      build:
+        context: ./Spring-boot-app-logger-two
+      ports:
+        - "8081:8080"
       networks:
         - elastic
 
