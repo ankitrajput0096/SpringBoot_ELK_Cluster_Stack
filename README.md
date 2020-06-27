@@ -36,6 +36,14 @@ To start the docker containers
 docker-compose up
 ```
 
+## NOTE :
+If there is an error that elasticsearch conntainer not run, may be because of "max virtual memory areas vm.max_map_count [65530] likely too low, increase to at least [262144]"
+
+To fix it, run: 
+
+`sudo sysctl -w vm.max_map_count=262144`
+
+
 ## All the exposed API's by spring-boot log-producer servers are as follows:
 
 1. Curl command for spring-boot log-producer one server :- curl --location --request GET 'localhost:8080/loggerOne/logOne'
@@ -43,6 +51,10 @@ docker-compose up
 3. Try hitting these api's on terminal and Enjoy producing logs in the application !!
 
 #### NOTE : To see elasticsearch cluster in action, observe terminal logs appropriately.
+
+## Sample Screenshots
+![](images/dockerps.png)
+![](images/elasticsearch.png)
 
 ## Built With
 
