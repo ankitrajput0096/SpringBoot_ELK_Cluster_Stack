@@ -53,8 +53,17 @@ To fix it, run:
 #### NOTE : To see elasticsearch cluster in action, observe terminal logs appropriately.
 
 ## Sample Screenshots
-![](images/dockerps.png)
-![](images/elasticsearch.png)
+
+1. Creating index pattern for logger service one
+![](images/CreateIndexForLoggerServiceOne.png)
+![](images/CreateIndexForLoggerServiceOne2.png)
+2. Creating index pattern for logger service two
+![](images/CreateIndexForLoggerServiceTwo.png)
+![](images/CreateIndexForLoggerServiceTwo2.png)
+3. Discover Dashboard for Logger Service One
+![](images/DiscoverDashboardForLoggerServiceOne.png)
+4. Discover Dashboard for Logger Service Two
+![](images/DiscoverDashboardForLoggerServiceTwo.png)
 
 ## Built With
 
